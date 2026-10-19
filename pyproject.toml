@@ -34,7 +34,7 @@ dependencies = [
     # CITES_COMPLIANCE_EVIDENCE / CARRIES_COMPLIANCE_FINDING (req-tap-plugin-edge-naming);
     # the panels here read the NEW slugs, and an older compliance_core would make them
     # read nothing, silently.
-    "compliance-core-tap>=0.5.0,<0.8",
+    "compliance-core-tap>=0.5.0,<0.9",
 ]
 
 [project.entry-points."tap.plugins"]
