@@ -48,6 +48,7 @@ This spec inherits the catalog vocabulary (Theme, Indicator, Certification Class
 | req-fedramp-20x-ksi-collector-job-result | [CollectionJob Result Shape](#collectionjob-result-shape) | Proposed | What gets recorded on success and failure |
 | req-fedramp-20x-ksi-collector-test-strategy | [Test Strategy](#test-strategy) | Proposed | Fixture-based unit tests + optional live-fetch integration test |
 | req-fedramp-20x-ksi-collector-deprecation | [Deprecation of Authorship Tooling](#deprecation-of-authorship-tooling) | Implemented | Removed refresh.py, GitHub Action, submodule, and skill directory; seed file replaces dated waves |
+| req-fedramp-20x-ksi-collector-schedule | [Scheduled Refresh](#scheduled-refresh) | Implemented | A seeded Schedule runs the collector hourly |
 | req-fedramp-20x-ksi-collector-future | [Future Work](#future-work) | Proposed | Emitter loop, delete semantics, scheduler integration |
 
 ---
@@ -582,6 +583,32 @@ Per direction from spec review: the existing data in any developer's local TAP g
 
 ---
 
+### Scheduled Refresh
+----
+RID: `req-fedramp-20x-ksi-collector-schedule`
+
+Status: `Implemented`
+
+The plugin ships one `Schedule` (bundle `ksi_schedule`, `grift/ksi-schedule.grift.json`) that runs the KSI catalog collector hourly, so the catalog follows the upstream rules repo without an operator pressing a button.
+
+#### Implementation
+
+- Cron `17 * * * *` (UTC): once an hour, at minute 17 rather than the top of the hour, where most schedules fire.
+- `max_active_runs` is 1, so a slow run is never overlapped by the next.
+- The `SCHEDULED_TARGET` edge points at the collector entity derived from `ksi-catalog`.
+- One run is one metadata fetch (a single HTTPS GET of one JSON file, 10 MiB cap, 30 s timeout) and a change-only diff against the grid; it needs no credential (`req-fedramp-20x-ksi-collector-fetch`).
+- **Convergence.** GRIFT skips a batch whose `batch_entity.entity_id` was already imported (`req-grid-import-grift-identity-1`), so changing the schedule means a new batch id. The Schedule and edge entity ids stay the same, so the new batch replaces the existing Schedule rather than adding a second.
+
+#### Acceptance Criteria
+
+| ACID | Title | Status | Description | Notes |
+| --- | --- | :---: | --- | --- |
+| req-fedramp-20x-ksi-collector-schedule-1 | Hourly Cron | Implemented | The seeded Schedule's `cron_expression` fires once per hour. | `tests/test_fedramp_20x_ksi_manifest.py` |
+| req-fedramp-20x-ksi-collector-schedule-2 | No Overlap | Implemented | `max_active_runs` is 1. | |
+| req-fedramp-20x-ksi-collector-schedule-3 | Batch Id Bumped On Change | Implemented | A change to the schedule bundle carries a new `batch_entity.entity_id` and keeps the Schedule entity id. | |
+
+---
+
 ### Future Work
 ----
 RID: `req-fedramp-20x-ksi-collector-future`
@@ -600,7 +627,7 @@ Items intentionally deferred:
 
    Migration impact when this lands: the KSI collector resubclasses `GitCollectorBase` instead of `CollectorBase`; the dropped safety checks (`INTEGRITY_REWIND`, `ORIGIN_MISMATCH`, `COMMIT_AUTHOR_DRIFT`, signing checks) come back as block-class; `description_json.data.commits[]` returns; the HTTPS trust-model caveat in `req-fedramp-20x-ksi-collector-safety` becomes obsolete.
 
-2. **Scheduled refresh.** Once `tap_cares` ships a scheduler (`req-tap-cares-v0-scheduler`), the KSI collector becomes the first concrete consumer. v0 KSI collector runs are triggered manually (Django shell, management command, or admin button).
+2. **Scheduled refresh.** Landed: see `req-fedramp-20x-ksi-collector-schedule` (hourly Schedule). Manual runs (Django shell, management command, admin button) remain available.
 
 3. **Emitter loop back to FedRAMP/rules.** When `tap_cares` emitters land, a complementary `KSIEmitter` could push local-instance edits back to the FedRAMP/rules repo as PRs, making a TAP installation the canonical authoring path. The collector's `description_json.data.source` already records the inverse direction; symmetry with an emitter is intentional.
 

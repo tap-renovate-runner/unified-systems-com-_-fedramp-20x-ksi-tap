@@ -25,3 +25,26 @@ class TestFedramp20xKsiStructure:
     def test_strict_structure_passes(self):
         result = validate_plugin(PLUGIN_ROOT, level="structure", strict=True)
         assert result.ok, result.to_human()
+
+
+class TestKsiSchedule:
+    """req-fedramp-20x-ksi-collector-schedule-1..3."""
+
+    def _bundle(self):
+        import json
+
+        path = PLUGIN_ROOT / "tap_plugin" / "fedramp_20x_ksi" / "grift" / "ksi-schedule.grift.json"
+        return json.loads(path.read_text())
+
+    def test_runs_hourly(self):
+        node = self._bundle()["batches"][0]["nodes"][0]["node"]
+        minute, *rest = node["cron_expression"].split()
+        assert minute.isdigit() and rest == ["*", "*", "*", "*"]
+
+    def test_no_overlap(self):
+        assert self._bundle()["batches"][0]["nodes"][0]["node"]["max_active_runs"] == 1
+
+    def test_batch_id_bumped_schedule_id_kept(self):
+        batch = self._bundle()["batches"][0]
+        assert batch["batch_entity"]["entity_id"] != "019e26e8-7cc2-764a-9b66-5961337dd149"
+        assert batch["nodes"][0]["entity"]["entity_id"] == "019e26e8-7cc2-764a-9b66-5962d4cd873d"
