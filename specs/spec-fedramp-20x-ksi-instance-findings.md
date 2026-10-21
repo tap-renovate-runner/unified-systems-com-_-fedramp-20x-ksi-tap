@@ -195,7 +195,7 @@ The Title cell links to the dedicated finding profile at `/fedramp-ksi/finding?e
 ## Out Of Scope (v0)
 
 - Resolved findings — only `status="open"` renders.
-- Exception coverage — covered findings are not visually distinguished in v0; the `COVERS_COMPLIANCE_FINDING` edge is read by the open-findings counter elsewhere but not by this panel.
+- Exception coverage — covered findings are not visually distinguished in v0; coverage is the `finding-exception-coverage` Search of `compliance_core` (a `COVERS_COMPLIANCE_FINDING` edge from an exception instance, checked as the Search computes it), which this panel does not read.
 - Findings on assets nested under this asset (programs, ports, network interfaces hosted by an EC2). v0 only walks `CARRIES_COMPLIANCE_FINDING` directly from the asset; deeper rollup is Future.
 - Multi-indicator findings render only the first KSI in the row chip; full list still appears in the inline detail mini-table.
 - Lifecycle controls (resolve, attach evidence, edit relationship) — read-only panel.
