@@ -24,6 +24,6 @@ jobs:
       contents: read
       id-token: write
       attestations: write
-    uses: unified-systems-com/tap/.github/workflows/plugin-release-sbom.yml@da212f5c0cf73d50d644f1c608e14b47515ccee8
+    uses: unified-systems-com/tap/.github/workflows/plugin-release-sbom.yml@879c6ee6a56f68022860c2c05a0bdc9f433612ae
     with:
       plugin_slug: fedramp_20x_ksi
