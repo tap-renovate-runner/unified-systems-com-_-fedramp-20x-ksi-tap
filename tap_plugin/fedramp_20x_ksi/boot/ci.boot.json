@@ -1,6 +1,6 @@
 {
   "version": 1,
-  "description": "fedramp_20x_ksi CI record (req-boot-bootstrap-ci-record, tap#365) \u2014 the stack this plugin's own tests run in, and the one claim per-plugin CI is allowed to make: that fedramp_20x_ksi is correct against the dependencies it DECLARES and nothing else. Install set is exactly the depends_on closure (compliance_core) plus fedramp_20x_ksi itself; the consumer flips the self entry to editable so the CHECKOUT under test runs, not the pinned revision. Population seeds fedramp_20x_ksi (seed-only, offline). DELIBERATELY EXCLUDED: every other plugin, all credentials, all required_secrets, and any population step that reaches the network \u2014 so a fork can run this lane and a nightly cannot flake on a third party (req-boot-bootstrap-ci-record-5). Reproduce CI exactly: spawn --from 'git+https://github.com/unified-systems-com/fedramp-20x-ksi-tap@<release tag>#ci' --dev-plugins fedramp_20x_ksi",
+  "description": "fedramp_20x_ksi CI record (req-boot-bootstrap-ci-record, tap#365) — the stack this plugin's own tests run in, and the one claim per-plugin CI is allowed to make: that fedramp_20x_ksi is correct against the dependencies it DECLARES and nothing else. Install set is exactly the depends_on closure (compliance_core) plus fedramp_20x_ksi itself; the consumer flips the self entry to editable so the CHECKOUT under test runs, not the pinned revision. Population seeds fedramp_20x_ksi (seed-only, offline). DELIBERATELY EXCLUDED: every other plugin, all credentials, all required_secrets, and any population step that reaches the network — so a fork can run this lane and a nightly cannot flake on a third party (req-boot-bootstrap-ci-record-5). Reproduce CI exactly: spawn --from 'git+https://github.com/unified-systems-com/fedramp-20x-ksi-tap@<release tag>#ci' --dev-plugins fedramp_20x_ksi",
   "install": {
     "plugins": [
       {
@@ -19,7 +19,7 @@
         "source": {
           "type": "git",
           "url": "https://github.com/unified-systems-com/fedramp-20x-ksi-tap",
-          "rev": "v0.3.1"
+          "rev": "v0.3.2"
         }
       }
     ]
